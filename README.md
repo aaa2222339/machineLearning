@@ -1,6 +1,6 @@
 # machineLearning
 [开源训练营](https://github.com/FoolBit/Open-source-training-camp)的小组项目。
-待更新...
+这是一个测试性pr
 
 ### 文件状态检查
 
