@@ -1,6 +1,6 @@
 # machineLearning
 [开源训练营](https://github.com/FoolBit/Open-source-training-camp)的小组项目。
-这里是Machine learning共同学习的社区，我们将在这里进行机器学习笔记的共享，欢迎一起学习机器学习的小伙伴关注，与我们一起讨论学习经验，
+这里是Machine learning共同学习的社区，我们将在这里进行机器学习笔记的共享，欢迎一起学习机器学习的小伙伴关注，与我们一起讨论学习经验。
 我们将演示不同算法的推导过程，欢迎大家补充，改进。
 待更新...
 
