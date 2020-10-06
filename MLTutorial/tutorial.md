@@ -176,3 +176,172 @@ scores = cross_val_score(linear_model, X, y, cv=kf)
 ```
 
 `scores`中有`n_splits`个元素，即`n_splits`次`KFold`得到的$R^2$。
+
+
+
+## Logistic regression
+
+`sklearn`中`logistic regression`的函数：
+
+```python
+sklearn.linear_model.LogisticRegression(penalty='l2', *, dual=False, tol=0.0001, C=1.0, 	fit_intercept=True, intercept_scaling=1, class_weight=None, random_state=None, 		
+  solver='lbfgs', max_iter=100, multi_class='auto', verbose=0, warm_start=False, 	
+  n_jobs=None, l1_ratio=None)
+```
+
+两个较为重要的参数：
+
+- `solver`:**{‘newton-cg’, ‘lbfgs’, ‘liblinear’, ‘sag’, ‘saga’}, default=’lbfgs’**
+
+  | 正则项 | Solver              |                                                              |
+  | ------ | ------------------- | ------------------------------------------------------------ |
+  | L1     | liblinear           | liblinear适用于小数据集；如果选择L2正则化发现还是过拟合，即预测效果差的时候，就可以考虑L1正则化；如果模型的特征非常多，希望一些不重要的特征系数归零，从而让模型系数稀疏化的话，也可以使用L1正则化。 |
+  | L2     | liblinear           | libniear只支持多元逻辑回归的OvR，不支持MvM，但MVM相对精确。  |
+  | L2     | lbfgs/newton-cg/sag | 较大数据集，支持one-vs-rest(OvR)和many-vs-many(MvM)两种多元逻辑回归。 |
+  | L2     | sag                 | 如果样本量非常大，比如大于10万，sag是第一选择；但不能用于L1正则化。 |
+
+- `multi_class`:**{‘auto’, ‘ovr’, ‘multinomial’}, default=’auto’**
+
+`ovr`和`multinomial`的[详细介绍](https://blog.csdn.net/keeppractice/article/details/107088538)来自一篇博客，防止网站丢失，部分内容摘抄如下
+
+### 多分类Logistic
+
+#### 前言
+
+逻辑回归分类器（Logistic Regression Classifier）是机器学习领域著名的分类模型。其常用于解决二分类（Binary Classification）问题。
+利用二分类学习器进行的多分类学习可以分为三种策略：
+
+一对一 （One vs. One, 简称OvO）
+一对其余 （One vs. Rest，简称 OvR）也可是OvA（One vs. All）但是不严格
+多对多（Many vs. Many，简称 MvM）
+
+#### One-VS-Rest
+
+假设我们要解决一个分类问题，该分类问题有三个类别，分别用△，□和×表示，每个实例（Entity）有两个属性（Attribute），如果把属性 1 作为 X 轴，属性 2 作为 Y 轴，训练集（Training Dataset）的分布可以表示为下图：
+
+![img](https://img-blog.csdnimg.cn/20200702185736524.png)
+
+One-Vs-Rest 的思想是把一个多分类的问题变成多个二分类的问题。转变的思路就如同方法名称描述的那样，选择其中一个类别为正类（Positive），使其他所有类别为负类（Negative）。比如第一步，我们可以将三角形所代表的实例全部视为正类，其他实例全部视为负类，得到的分类器如图：
+
+![img](https://img-blog.csdnimg.cn/20200702185814831.png)
+
+同理我们把 X 视为正类，其他视为负类，可以得到第二个分类器：
+
+![img](https://img-blog.csdnimg.cn/20200702185834906.png)
+
+最后，第三个分类器是把正方形视为正类，其余视为负类：
+
+![img](https://img-blog.csdnimg.cn/20200702185850910.png)
+
+对于一个三分类问题，我们最终得到 3 个二元分类器。在预测阶段，每个分类器可以根据测试样本，得到当前正类的概率。即 P(y = i | x; θ)，i = 1, 2, 3。选择计算结果最高的分类器，其正类就可以作为预测结果。
+
+**One-Vs-Rest** 最为一种常用的二分类拓展方法，其优缺点也十分明显。
+
+优点：普适性还比较广，可以应用于能输出值或者概率的分类器，同时效率相对较好，有多少个类别就训练多少个分类器。
+
+缺点：很容易造成训练集样本数量的不平衡（Unbalance），尤其在类别较多的情况下，经常容易出现正类样本的数量远远不及负类样本的数量，这样就会造成分类器的偏向性。
+
+#### One-Vs-One
+
+相比于 One-Vs-Rest 由于样本数量可能的偏向性带来的不稳定性，One-Vs-One 是一种相对稳健的扩展方法。对于同样的三分类问题，我们像举行车轮作战一样让不同类别的数据两两组合训练分类器，可以得到 3 个二元分类器。
+
+它们分别是三角形与 x 训练得出的分类器：
+
+![img](https://img-blog.csdnimg.cn/20200702190039762.png)
+
+三角形与正方形训练的出的分类器：
+
+![img](https://img-blog.csdnimg.cn/20200702190052314.png)
+
+以及正方形与 x 训练得出的分类器：
+
+![img](https://img-blog.csdnimg.cn/20200702190105300.png)
+
+假如我们要预测的一个数据在图中红色圆圈的位置，那么第一个分类器会认为它是 x，第二个分类器会认为它偏向三角形，第三个分类器会认为它是 x，经过三个分类器的投票之后，可以预测红色圆圈所代表的数据的类别为 x。
+
+任何一个测试样本都可以通过分类器的投票选举出预测结果，这就是 One-Vs-One 的运行方式。
+
+当然这一方法也有显著的优缺点，其缺点是训练出更多的 Classifier，会影响预测时间。
+
+虽然在本文的例子中，One-Vs-Rest 和 One-Vs-One 都得到三个分类器，但实际上仔细思考就会发现，如果有 k 个不同的类别，对于 One-Vs-Rest 来说，一共只需要训练 k 个分类器，而 One-Vs-One 则需训练 C(k, 2) 个分类器，只是因为在本例种，k = 3 时恰好两个值相等，一旦 k 值增多，One-Vs-One 需要训练的分类器数量会大大增多。
+
+当然 One-Vs-One 的优点也很明显，它在一定程度上规避了数据集 unbalance 的情况，性能相对稳定，并且需要训练的模型数虽然增多，但是每次训练时训练集的数量都降低很多，其训练效率会提高。
+
+#### 比较 OvO 和 OvR
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/2020070323082443.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tlZXBwcmFjdGljZQ==,size_16,color_FFFFFF,t_70)
+
+容易看出，OvR只需训练N个分类器，而OvO则需要训练N(N-1)/2个分类器，因此，**OvO的存储开销和测试时间开销通常比OvR更大**。但在训练时，OvR的每个分类器均使用全部的训练样例，而OvO的每个分类器仅用到两个类的样例，因此，**在类别很多的时候，OvO的训练时间开销通常比OvR更小**。至于预测性能，则取决于具体的数据分布，在多数情况下两者差不多。
+
+#### 多对多 （Many vs Many）
+
+多对多是每次将若干类作为正例，若干其他类作为负例。MvM的正反例构造有特殊的设计，不能随意选取。我们这里介绍一种常用的MvM技术：纠错输出码（EOOC）。
+
+- 编码：对N个类做M次划分，每次划分将一部分类别划分为正例，一部分划分为反例，从而形成一个二分类的训练集：这样共有M个训练集，则可训练出M个分类器。
+- 解码：M个分类器分别对测试样本进行预测，这些预测样本组成一个编码。将这个编码与每个类各自的编码进行比较，返回其中距离最小的类别作为最终预测结果。
+
+类别划分通过"编码矩阵" (coding matrix) 指定.编码矩阵有多种形式，**常见的主要有二元码 [Dietterich and iri 1995] 和三元码 [Allwein et al.,2000]**. 前者将每个类别分别指定为正类和反类，**后者在正、反类之外，还可指定"停用类"**因 3.5 给出了一个示意图，在图 3.5(a) 中，分类器 Cl 类和C3 类的样例作为正例 C2 类和 C4 类的样例作为反例;在图 3.5(b) 中，分类器14 类和 C4 类的样例作为正例 C3 类的样例作为反例.在解码阶段，各分类器的预测结果联合起来形成了测试示例的编码，该编码与各类所对应的编码进行比较?将距离最小的编码所对应的类别作为预测结果.例如在图 3.5(a) 中，若基于欧民距离，预测结果将是 C3.
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200704001238483.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tlZXBwcmFjdGljZQ==,size_16,color_FFFFFF,t_70)
+为什么要用纠错输出码呢？因为在测试阶段，ECOC编码对分类器的错误有一定的容忍和修正能力。例如上图中对测试示例正确的预测编码是（-1，1，1，-1，1），但在预测时f2出错从而导致了错误的编码（-1， -1， 1， -1，1）。但是基于这个编码仍然能产生正确的最终分类结果C3。
+
+
+
+### 标准化和归一化
+
+`sklearn.processing`中有标准化和归一化的函数：
+
+```python
+# 标准化
+sklearn.preprocessing.StandardScaler(*, copy=True, with_mean=True, with_std=True)
+
+# 归一化
+sklearn.preprocessing.MinMaxScaler(feature_range=(0, 1), *, copy=True)
+
+# Methods
+fit(X[, y]) # Compute the mean and std to be used for later scaling.
+fit_transform(X[, y]) # Fit to data, then transform it.
+get_params([deep]) # Get parameters for this estimator.
+inverse_transform(X[, copy]) # Scale back the data to the original representation
+partial_fit(X[, y]) # Online computation of mean and std on X for later scaling.
+set_params(**params) # Set the parameters of this estimator.
+transform(X[, copy]) # Perform standardization by centering and scaling
+```
+
+
+
+### 鸢尾花分类
+
+同样的，`sklearn.datasets`中有`iris`的数据集：
+
+```python
+from sklearn.datasets import load_iris
+data = load_iris()
+```
+
+数据的使用方法与`linearRegression`部分相同。
+
+主要代码部分：
+
+```python
+lm = LogisticRegression(max_iter=2000, solver="sag")
+X = data.data
+y = data.target
+lm.fit(X, y)
+```
+
+默认的`max_iter=100`在这里不能达到收敛状态，这里提高到了`2000`。
+
+拟合完之后，查看正确率：
+
+```python
+lm.score(X, y)
+```
+
+> 0.98
+
+
+
+待补充：
+
+- 用`np.meshgrid`画分类结果图
