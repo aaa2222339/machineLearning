@@ -345,3 +345,69 @@ lm.score(X, y)
 待补充：
 
 - 用`np.meshgrid`画分类结果图
+
+
+
+## sklearn中对数据的处理
+
+### 划分训练集/测试集
+
+[API链接](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html?highlight=train_test#sklearn.model_selection.train_test_split)
+
+```python
+X_train,X_test, y_train, y_test = sklearn.model_selection.train_test_split(train_data,train_target,test_size=0.25)
+```
+
+
+
+### KFold
+
+```python
+sklearn.model_selection.KFold(n_splits=5, *, shuffle=False, random_state=None)
+
+# 用法示例
+import numpy as np
+from sklearn.model_selection import KFold
+X = np.array([[1, 2], [3, 4], [1, 2], [3, 4]])
+y = np.array([1, 2, 3, 4])
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+print(kf)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN:", train_index, "TEST:", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+```
+
+
+
+### Cross-Validation
+
+[API链接](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html?highlight=cross_validation)
+
+```python
+sklearn.model_selection.cross_validate(estimator, X, y=None, *, groups=None, scoring=None, cv=None, n_jobs=None, verbose=0, fit_params=None, pre_dispatch='2*n_jobs', return_train_score=False, return_estimator=False, error_score=nan)
+
+# 用法示例
+>>> from sklearn import datasets, linear_model
+>>> from sklearn.model_selection import cross_validate
+>>> from sklearn.metrics import make_scorer
+>>> from sklearn.metrics import confusion_matrix
+>>> from sklearn.svm import LinearSVC
+>>> diabetes = datasets.load_diabetes()
+>>> X = diabetes.data[:150]
+>>> y = diabetes.target[:150]
+>>> lasso = linear_model.Lasso()
+
+>>> cv_results = cross_validate(lasso, X, y, cv=3)
+>>> sorted(cv_results.keys())
+['fit_time', 'score_time', 'test_score']
+>>> cv_results['test_score']
+array([0.33150734, 0.08022311, 0.03531764])
+
+# 也可以直接得到scores
+scores = sklearn.model_selection.cross_val_score(estimator, X, y=None, *, groups=None, scoring=None, cv=None, n_jobs=None, verbose=0, fit_params=None, pre_dispatch='2*n_jobs', error_score=nan)[source]
+```
+
