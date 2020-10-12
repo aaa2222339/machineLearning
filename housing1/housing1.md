@@ -487,7 +487,7 @@ housing.plot(kind="scatter", x="longitude", y="latitude")
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x7fe364865780>
+    <matplotlib.axes._subplots.AxesSubplot at 0x7fd78f34ec50>
 
 
 
@@ -505,7 +505,7 @@ housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.1)
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x7fb6f73f7550>
+    <matplotlib.axes._subplots.AxesSubplot at 0x7fd78f5acd30>
 
 
 
@@ -529,7 +529,7 @@ plt.legend()
 
 
 
-    <matplotlib.legend.Legend at 0x7fe364c8ec18>
+    <matplotlib.legend.Legend at 0x7fd78f71ce80>
 
 
 
@@ -585,22 +585,22 @@ scatter_matrix(housing[attributes], figsize=(12, 8))
 
 
 
-    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x7fe363acd4e0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe361ed7860>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe364c75470>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3638feb00>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fe363a551d0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363a55208>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3654b9ef0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3644315c0>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fe364413c50>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363a1e320>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3642f9358>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363905080>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fe363910710>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363992da0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3639c1470>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3639f6b00>]],
+    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x7fd790abc828>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd790e79f28>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd790ea93c8>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd790ed19e8>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fd790f010b8>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd790f010f0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd790f52dd8>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd790f844a8>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fd78ebc69b0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd78eb2b7b8>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd78eb69128>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd78ec98be0>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fd78eacebe0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd78ec895f8>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd78ea68080>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fd78ec82748>]],
           dtype=object)
 
 
@@ -620,7 +620,7 @@ housing.plot(kind="scatter", x="median_income",y="median_house_value",
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x7fe36677cdd8>
+    <matplotlib.axes._subplots.AxesSubplot at 0x7fd78e535be0>
 
 
 
@@ -791,7 +791,7 @@ print(encoder.classes_)
     ['<1H OCEAN' 'INLAND' 'ISLAND' 'NEAR BAY' 'NEAR OCEAN']
 
 
-这种做法的问题是，ML 算法会认为两个临近的值比两个疏远的值要更相似。为了解决这个问题，需要将整数分类值转变为独热向量，使用Scikit-Learn提供的编码器OneHotEncoder
+#### 这种做法的问题是，ML 算法会认为两个临近的值比两个疏远的值要更相似。为了解决这个问题，需要将整数分类值转变为独热向量，使用Scikit-Learn提供的编码器OneHotEncoder
 
 
 ```python
@@ -980,6 +980,143 @@ housing_prepared
              1.        ,  0.        ]])
 
 
+
+## 四、选择并训练一个线性回归模型
+
+#### 前面的工作都可以概括为为训练机器学习模型做准备：我们限定了问题、获得了数据、探索了数据、采样了一个测试集、写了自动化的转换流水线来清理和为算法准备数据
+
+
+```python
+from sklearn.linear_model import LinearRegression
+
+lin_reg = LinearRegression()
+lin_reg.fit(housing_prepared, housing_labels)
+```
+
+
+
+
+    LinearRegression(copy_X=True, fit_intercept=True, n_jobs=1, normalize=False)
+
+
+
+
+```python
+some_data = housing.iloc[:5]
+some_labels = housing_labels.iloc[:5]
+some_data_prepared = full_pipeline.transform(some_data)
+
+```
+
+
+```python
+print("Predictions:\t", lin_reg.predict(some_data_prepared))
+```
+
+    Predictions:	 [210644.60459286 317768.80697211 210956.43331178  59218.98886849
+     189747.55849879]
+
+
+
+```python
+print("Labels:\t\t", list(some_labels))
+```
+
+    Labels:		 [286600.0, 340600.0, 196900.0, 46300.0, 254500.0]
+
+
+#### 模型的预测并不怎么准确，使用Scikit-Learn的mean_squared_error函数，用全部训练集来计算下这个回归模型的RMSE均方根误差
+
+
+```python
+from sklearn.metrics import mean_squared_error
+housing_predictions = lin_reg.predict(housing_prepared)
+lin_mse = mean_squared_error(housing_labels, housing_predictions)
+lin_rmse = np.sqrt(lin_mse)
+lin_rmse
+```
+
+
+
+
+    68628.19819848923
+
+
+
+#### 结果并不好：大多数街区的median_housing_values位于 120000 到 265000 美元之间，因此预测误差 68628 美元不能让人满意。模型欠拟合训练数据的例子。当这种情况发生时，意味着特征没有提供足够多的信息来做出一个好的预测。
+
+#### 修复欠拟合的主要方法是选择一个更强大的模型，给训练算法提供更好的特征，或去掉模型上的限制。
+
+#### 以下来训练一个DecisionTreeRegressor决策树模型。这是一个强大的模型，可以发现数据中复杂的非线性关系
+
+
+```python
+from sklearn.tree import DecisionTreeRegressor
+
+tree_reg = DecisionTreeRegressor()
+tree_reg.fit(housing_prepared, housing_labels)
+```
+
+
+
+
+    DecisionTreeRegressor(criterion='mse', max_depth=None, max_features=None,
+               max_leaf_nodes=None, min_impurity_decrease=0.0,
+               min_impurity_split=None, min_samples_leaf=1,
+               min_samples_split=2, min_weight_fraction_leaf=0.0,
+               presort=False, random_state=None, splitter='best')
+
+
+
+#### 评估决策树模型方法有：
+- 用函数train_test_split来分割训练集，得到一个更小的训练集和一个验证集，然后用更小的训练集来训练模型，用验证集来评估。
+- 使用 Scikit-Learn 的交叉验证功能。
+下面的代码采用了K折交叉验证（K-fold cross-validation）：它随机地将训练集分成十个不同的子集，成为“折”，然后训练评估决策树模型10次，每次选一个不用的折来做评估，用其它9个来做训练。结果是一个包含10个评分的数组。
+
+
+```python
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(tree_reg, housing_prepared, housing_labels,
+                         scoring="neg_mean_squared_error", cv=10)
+tree_rmse_scores = np.sqrt(-scores)
+```
+
+
+```python
+def display_scores(scores):
+    print("Scores:", scores)
+    print("Mean:", scores.mean())
+    print("Standard deviation:", scores.std())
+
+display_scores(tree_rmse_scores)
+```
+
+    Scores: [68608.88613331 64944.91546564 71007.22923697 68188.60330371
+     70596.80869715 74943.44335107 71737.95655597 70822.77122827
+     76731.82133098 68584.570589  ]
+    Mean: 70616.70058920716
+    Standard deviation: 3221.702455534687
+
+
+如果只有一个验证集，就得不到这些信息。但是交叉验证的代价是训练了模型多次，不可能总是这样。
+
+
+```python
+lin_scores = cross_val_score(lin_reg, housing_prepared, housing_labels,
+                                      scoring="neg_mean_squared_error", cv=10)
+
+lin_rmse_scores = np.sqrt(-lin_scores)
+display_scores(lin_rmse_scores)
+```
+
+    Scores: [66782.73843989 66960.118071   70347.95244419 74739.57052552
+     68031.13388938 71193.84183426 64969.63056405 68281.61137997
+     71552.91566558 67665.10082067]
+    Mean: 69052.46136345083
+    Standard deviation: 2731.6740017983493
+
+
+很遗憾对这个决策树模型评估的结果是过拟合很严重，下面还需要尝试其他种类训练模型。
 
 
 ```python
