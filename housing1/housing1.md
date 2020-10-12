@@ -378,12 +378,6 @@ import numpy as np
 1. 由于房产数据集没有ID这一列，使用行索引作为ID。但是如果使用行索引作为唯一识别码，需要保证新数据都放到现有数据的尾部，且没有行被删除。
 2. 如果做不到，则可以用最稳定的特征来创建唯一识别码。例如，一个区的维度和经度在几百万年之内是不变的，所以可以将两者结合成一个ID。
 
-
-```python
-housing_with_id["id"] = housing["longitude"] * 1000 + housing["latitude"]
-train_set, test_set = split_train_test_by_id(housing_with_id, 0.2, "id")
-```
-
 #### 但以上都是纯随机的取样方法。当数据集很大时（尤其是和属性数相比），这通常可行；但如果数据集不大，就会有采样偏差的风险。
 - 现在考虑分层采样：收入中位数是预测房价中位数非常重要的属性，想要尽量使测试集可以代表整体数据集中的多种收入分类。
 - 由于收入中位数是一个连续的数值属性，创建一个值是离散分布的收入类别属性“income_cat”：将收入中位数除以1.5（以限制收入分类的数量），用ceil对值舍入（以产生离散的分类），然后将所有大于5的分类归入到分类5
@@ -493,12 +487,12 @@ housing.plot(kind="scatter", x="longitude", y="latitude")
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x7fb6f7709358>
+    <matplotlib.axes._subplots.AxesSubplot at 0x7fe364865780>
 
 
 
 
-![png](output_38_1.png)
+![png](output_37_1.png)
 
 
 #### 3. 将alpha设为 0.1，可以更容易看出数据点的密度
@@ -516,7 +510,7 @@ housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.1)
 
 
 
-![png](output_40_1.png)
+![png](output_39_1.png)
 
 
 可以非常清楚地看到高密度区域，湾区、洛杉矶和圣迭戈，以及中央谷，特别是从萨克拉门托和弗雷斯诺。
@@ -535,12 +529,12 @@ plt.legend()
 
 
 
-    <matplotlib.legend.Legend at 0x7fb6f76aef60>
+    <matplotlib.legend.Legend at 0x7fe364c8ec18>
 
 
 
 
-![png](output_43_1.png)
+![png](output_42_1.png)
 
 
 这张图说明房价和位置（比如，靠海）和人口密度联系密切。
@@ -591,28 +585,28 @@ scatter_matrix(housing[attributes], figsize=(12, 8))
 
 
 
-    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f86557b8>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f9140be0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f91720f0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f919b668>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f91c3cf8>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f91c3d30>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f921aa58>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f87e3128>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f92717b8>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f929be48>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f86e9518>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f7cfaba8>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f81c8278>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f81ed908>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f76a3a90>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6f66f0fd0>]],
+    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x7fe363acd4e0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe361ed7860>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe364c75470>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3638feb00>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fe363a551d0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363a55208>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3654b9ef0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3644315c0>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fe364413c50>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363a1e320>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3642f9358>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363905080>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x7fe363910710>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe363992da0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3639c1470>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x7fe3639f6b00>]],
           dtype=object)
 
 
 
 
-![png](output_49_2.png)
+![png](output_48_2.png)
 
 
 最有希望用来预测房价中位数的属性是收入中位数，将这张图放大：
@@ -626,12 +620,12 @@ housing.plot(kind="scatter", x="median_income",y="median_house_value",
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x7fb6f7495f60>
+    <matplotlib.axes._subplots.AxesSubplot at 0x7fe36677cdd8>
 
 
 
 
-![png](output_51_1.png)
+![png](output_50_1.png)
 
 
 可以清晰地看到向上的趋势，呈正相关
@@ -695,7 +689,6 @@ housing_labels = strat_train_set["median_house_value"].copy()
 
 ```python
 from sklearn.preprocessing import Imputer
-
 imputer = Imputer(strategy="median")
 ```
 
@@ -937,6 +930,56 @@ class MyLabelBinarizer(TransformerMixin):
     def transform(self, x, y=0):
         return self.encoder.transform(x)
 ```
+
+
+```python
+from sklearn.pipeline import FeatureUnion
+
+num_attribs = list(housing_num)
+cat_attribs = ["ocean_proximity"]
+
+num_pipeline = Pipeline([
+        ('selector', DataFrameSelector(num_attribs)),
+        ('imputer', Imputer(strategy="median")),
+        ('attribs_adder', CombinedAttributesAdder()),
+        ('std_scaler', StandardScaler()),
+    ])
+
+cat_pipeline = Pipeline([
+        ('selector', DataFrameSelector(cat_attribs)),
+        ('label_binarizer', MyLabelBinarizer()),
+    ])
+
+full_pipeline = FeatureUnion(transformer_list=[
+        ("num_pipeline", num_pipeline),
+        ("cat_pipeline", cat_pipeline),
+    ])
+```
+
+
+```python
+housing_prepared = full_pipeline.fit_transform(housing)
+housing_prepared
+```
+
+
+
+
+    array([[-1.15604281,  0.77194962,  0.74333089, ...,  0.        ,
+             0.        ,  0.        ],
+           [-1.17602483,  0.6596948 , -1.1653172 , ...,  0.        ,
+             0.        ,  0.        ],
+           [ 1.18684903, -1.34218285,  0.18664186, ...,  0.        ,
+             0.        ,  1.        ],
+           ...,
+           [ 1.58648943, -0.72478134, -1.56295222, ...,  0.        ,
+             0.        ,  0.        ],
+           [ 0.78221312, -0.85106801,  0.18664186, ...,  0.        ,
+             0.        ,  0.        ],
+           [-1.43579109,  0.99645926,  1.85670895, ...,  0.        ,
+             1.        ,  0.        ]])
+
+
 
 
 ```python
