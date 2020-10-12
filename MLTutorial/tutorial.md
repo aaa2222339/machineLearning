@@ -348,6 +348,103 @@ lm.score(X, y)
 
 
 
+## decisionTree
+
+决策树可以调节的参数比较多，具体如下：
+
+```python
+sklearn.tree.DecisionTreeClassifier(*, criterion='gini', splitter='best', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None, max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, class_weight=None, presort='deprecated', ccp_alpha=0.0)
+
+```
+
+参数解释：
+
+- criterion：分裂节点所用的标准，可选“gini”, “entropy”，默认“gini”。
+
+- splitter：用于在每个节点上选择拆分的策略。可选“best”, “random”，默认“best”。
+- max_depth：树的最大深度。如果为None，则将节点展开，直到所有叶子都是纯净的(只有一个类)，或者直到所有叶子都包含少于min_samples_split个样本。默认是None。
+- min_samples_split：拆分内部节点所需的最少样本数：如果为int，则将min_samples_split视为最小值。如果为float，则min_samples_split是一个分数，而ceil（min_samples_split * n_samples）是每个拆分的最小样本数。默认是2。
+- min_samples_leaf：在叶节点处需要的最小样本数。仅在任何深度的分割点在左分支和右分支中的每个分支上至少留下min_samples_leaf个训练样本时，才考虑。这可能具有平滑模型的效果，尤其是在回归中。如果为int，则将min_samples_leaf视为最小值。如果为float，则min_samples_leaf是分数，而ceil（min_samples_leaf * n_samples）是每个节点的最小样本数。默认是1。
+- min_weight_fraction_leaf：在所有叶节点处（所有输入样本）的权重总和中的最小加权分数。如果未提供sample_weight，则样本的权重相等。
+- max_features：寻找最佳分割时要考虑的特征数量：如果为int，则在每个拆分中考虑max_features个特征。如果为float，则max_features是一个分数，并在每次拆分时考虑int（max_features * n_features）个特征。如果为“auto”，则max_features = sqrt（n_features）。如果为“ sqrt”，则max_features = sqrt（n_features）。如果为“ log2”，则max_features = log2（n_features）。如果为None，则max_features = n_features。注意：在找到至少一个有效的节点样本分区之前，分割的搜索不会停止，即使它需要有效检查多个max_features功能也是如此。
+- random_state：随机种子，负责控制分裂特征的随机性，为整数。默认是None。
+- max_leaf_nodes：最大叶子节点数，整数，默认为None
+- min_impurity_decrease：如果分裂指标的减少量大于该值，则进行分裂。
+- min_impurity_split：决策树生长的最小纯净度。默认是0。自版本0.19起不推荐使用：不推荐使用min_impurity_split，而建议使用0.19中的min_impurity_decrease。min_impurity_split的默认值在0.23中已从1e-7更改为0，并将在0.25中删除。
+- class_weight：每个类的权重，可以用字典的形式传入{class_label: weight}。如果选择了“balanced”，则输入的权重为n_samples / (n_classes * np.bincount(y))。
+- presort：此参数已弃用，并将在v0.24中删除。
+- ccp_alpha：将选择成本复杂度最大且小于ccp_alpha的子树。默认情况下，不执行修剪。
+
+
+
+| method                                                       |                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`apply`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.apply)(X[, check_input]) | Return the index of the leaf that each sample is predicted as. |
+| [`cost_complexity_pruning_path`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.cost_complexity_pruning_path)(X, y[, …]) | Compute the pruning path during Minimal Cost-Complexity Pruning. |
+| [`decision_path`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.decision_path)(X[, check_input]) | Return the decision path in the tree.                        |
+| [`fit`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.fit)(X, y[, sample_weight, check_input, …]) | Build a decision tree classifier from the training set (X, y). |
+| [`get_depth`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.get_depth)() | Return the depth of the decision tree.                       |
+| [`get_n_leaves`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.get_n_leaves)() | Return the number of leaves of the decision tree.            |
+| [`get_params`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.get_params)([deep]) | Get parameters for this estimator.                           |
+| [`predict`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.predict)(X[, check_input]) | Predict class or regression value for X.                     |
+| [`predict_log_proba`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.predict_log_proba)(X) | Predict class log-probabilities of the input samples X.      |
+| [`predict_proba`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.predict_proba)(X[, check_input]) | Predict class probabilities of the input samples X.          |
+| [`score`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.score)(X, y[, sample_weight]) | Return the mean accuracy on the given test data and labels.  |
+| [`set_params`](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier.set_params)(**params) | Set the parameters of this estimator.                        |
+
+
+
+决策树直接拟合比较容易过拟合，最好调节以下参数或者进行`cross_validate`
+
+```python
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.tree import DecisionTreeClassifier
+dtc = DecisionTreeClassifier(criterion='gini', 
+                             splitter='best', 
+                             max_depth=None, 
+                             min_samples_split=2, 
+                             min_samples_leaf=1, 
+                             min_weight_fraction_leaf=0.0, 
+                             max_features=None, 
+                             random_state=1, 
+                             max_leaf_nodes=None, 
+                             min_impurity_decrease=0.0, 
+                             min_impurity_split=None, 
+                             class_weight=None, 
+                             presort='deprecated', 
+                             ccp_alpha=0.0)
+scores = cross_val_score(dtc, X, y)                           
+```
+
+
+
+它是个树，不能可视化可就太难受了，这里用`graphviz`来进行可视化。
+
+安装：
+
+```shell
+conda install python-graphviz
+```
+
+使用：
+
+```python
+import graphviz
+from sklearn import tree
+clf = tree.DecisionTreeClassifier()
+dot_data = tree.export_graphviz(clf, out_file=None,  
+                         feature_names=iris.feature_names,  
+                         class_names=iris.target_names,  
+                         filled=True, rounded=True,  
+                         special_characters=True)  
+graph = graphviz.Source(dot_data)  
+graph 
+```
+
+
+
+
+
 ## sklearn中对数据的处理
 
 ### 划分训练集/测试集
