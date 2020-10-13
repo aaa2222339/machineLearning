@@ -349,7 +349,7 @@ plt.show()
 ```
 
 
-![png](output_14_0.png)
+![png](./output_14_0.png)
 
 
 ## 一、创建测试集
