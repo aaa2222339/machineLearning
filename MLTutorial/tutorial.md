@@ -443,6 +443,112 @@ graph
 
 
 
+## naiveBayesian
+
+
+
+### 文字特征向量化
+
+在对文本内容进行处理之前，往往需要分词（中文）和特征向量化。
+
+这里使用英文数据，暂不考虑分词；在`sklearn`中，主要有两种文本特征向量化的方法：
+
+#### CountVectorizer
+
+```python
+# count vectorizer
+sklearn.feature_extraction.text.CountVectorizer(*, input='content', encoding='utf-8', decode_error='strict', strip_accents=None, lowercase=True, preprocessor=None, tokenizer=None, stop_words=None, token_pattern='(?u)\b\w\w+\b', ngram_range=(1, 1), analyzer='word', max_df=1.0, min_df=1, max_features=None, vocabulary=None, binary=False, dtype=<class 'numpy.int64'>)
+```
+
+[参数详细解释](https://blog.csdn.net/weixin_38278334/article/details/82320307)
+
+`CountVectorizer()`函数只考虑每个单词出现的频率；然后构成一个特征矩阵，每一行表示一个训练文本的词频统计结果。该方法又称为**词袋法(Bag of Words)**。
+
+
+
+#### TfidfVectorizer
+
+```python
+# Tfidf Vectorizer
+sklearn.feature_extraction.text.TfidfVectorizer(*, input='content', encoding='utf-8', decode_error='strict', strip_accents=None, lowercase=True, preprocessor=None, tokenizer=None, analyzer='word', stop_words=None, token_pattern='(?u)\b\w\w+\b', ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None, vocabulary=None, binary=False, dtype=<class 'numpy.float64'>, norm='l2', use_idf=True, smooth_idf=True, sublinear_tf=False)
+```
+
+TF：词频:
+$$
+TF(w)=\frac{词w在文档中出现的次数}{文档的总词数}
+$$
+
+
+IDF：逆向文件频率。有些词可能在文本中频繁出现，但并不重要，也即信息量小，如is,of,that这些单词，这些单词在语料库中出现的频率也非常大，我们就可以利用这点，降低其权重。
+$$
+IDF(w)=\log\frac{语料库的总文档数}{语料库中词w出现的文档数}
+$$
+将上面的TF-IDF相乘就得到了综合参数：
+$$
+TF-IDF=TF*IDF
+$$
+
+
+### ### 垃圾邮件分类
+
+根据对特征分布假设的不同，常用的有三种朴素贝叶斯模型：
+
+```python
+# 多项分布
+sklearn.naive_bayes.MultinomialNB(*, alpha=1.0, fit_prior=True, class_prior=None)
+# 伯努利分布
+sklearn.naive_bayes.BernoulliNB(*, alpha=1.0, binarize=0.0, fit_prior=True, class_prior=None)
+# 高斯分布
+sklearn.naive_bayes.GaussianNB(*, priors=None, var_smoothing=1e-09)
+```
+
+常用方法如下：
+
+**Methods**
+
+|                                                              |                                                             |
+| ------------------------------------------------------------ | ----------------------------------------------------------- |
+| [`fit`](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB.fit)(X, y[, sample_weight]) | Fit Gaussian Naive Bayes according to X, y                  |
+| [`partial_fit`](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB.partial_fit)(X, y[, classes, sample_weight]) | Incremental fit on a batch of samples.                      |
+| [`predict`](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB.predict)(X) | Perform classification on an array of test vectors X.       |
+| [`predict_proba`](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB.predict_proba)(X) | Return probability estimates for the test vector X.         |
+| [`score`](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB.score)(X, y[, sample_weight]) | Return the mean accuracy on the given test data and labels. |
+
+
+
+这里使用`SMSSpamCollection`数据集
+
+具体代码：
+
+```python
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB,BernoulliNB,GaussianNB
+from sklearn.metrics import classification_report
+from sklearn.model_selection import  train_test_split, cross_val_score
+
+# 读取数据
+sms = pd.read_csv('./dataset/SMSSpamCollection', sep='\t', header=None)
+data = sms.loc[:,1]
+target = sms.loc[:,0]
+
+# 划分数据集
+X_train, X_test, y_train, y_test = train_test_split(data, target)
+
+# 向量化
+vec = CountVectorizer()
+X_train = vec.fit_transform(X_train)
+X_test = vec.transform(X_test)
+
+# 拟合模型
+clf = MultinomialNB()
+clf.fit(X_train, y_train)
+clf.score(X_test, y_test)
+```
+
+
+
 
 
 ## sklearn中对数据的处理
