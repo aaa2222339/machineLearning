@@ -1,5 +1,5 @@
 
-# 房产信息机器学习项目-学习笔记
+# 机器学习项目-学习笔记
 
 ## 一、加载并简单了解数据
 #### 获取数据的函数：调用fetch_housing_data()，就会在工作空间创建一个datasets/housing目录，下载housing.tgz文件，解压出housing.csv
