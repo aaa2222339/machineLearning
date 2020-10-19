@@ -489,7 +489,7 @@ TF-IDF=TF*IDF
 $$
 
 
-### ### 垃圾邮件分类
+### 垃圾邮件分类
 
 根据对特征分布假设的不同，常用的有三种朴素贝叶斯模型：
 
@@ -545,6 +545,162 @@ X_test = vec.transform(X_test)
 clf = MultinomialNB()
 clf.fit(X_train, y_train)
 clf.score(X_test, y_test)
+```
+
+
+
+## SVM
+
+比较好的几个算法介绍
+
+[第一个](https://zhuanlan.zhihu.com/p/77750026)   [第二个](https://zhuanlan.zhihu.com/p/40857202)
+
+
+
+接口如下：
+
+```python
+sklearn.svm.SVC(*, C=1.0, kernel='rbf', degree=3, gamma='scale', coef0=0.0, shrinking=True, probability=False, tol=0.001, cache_size=200, class_weight=None, verbose=False, max_iter=-1, decision_function_shape='ovr', break_ties=False, random_state=None)
+```
+
+核函数和参数的对应关系：
+
+- linear: $⟨x,x′⟩$.
+
+- polynomial: $(γ⟨x,x′⟩+r)^d$, where d is specified by parameter `degree`, r by `coef0`.
+
+- rbf: $\exp⁡(−γ∥x−x′∥^2)$, where γ is specified by parameter `gamma`, must be greater than 0.
+
+- sigmoid: $tanh⁡(γ⟨x,x′⟩+r)$, where r is specified by `coef0`.
+
+
+
+$C$和$\gamma$的简单理解：
+
+- $C$越大，越容易过拟合；$\gamma$越大，越容易过拟合
+
+
+
+### 人脸识别
+
+代码中涉及到了用`PCA`提取`eigenface`来降维，不提取`eigenface`的画分类结果特别差
+
+```python
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.datasets import fetch_lfw_people
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+
+lfw_people = fetch_lfw_people(min_faces_per_person=50)
+
+# introspect the images arrays to find the shapes (for plotting)
+n_samples, h, w = lfw_people.images.shape
+
+# for machine learning we use the 2 data directly (as relative pixel
+# positions info is ignored by this model)
+X = lfw_people.data
+n_features = X.shape[1]
+
+# the label to predict is the id of the person
+y = lfw_people.target
+target_names = lfw_people.target_names
+n_classes = target_names.shape[0]
+
+print("Total dataset size:")
+print("n_samples: %d" % n_samples)
+print("n_features: %d" % n_features)
+print("n_classes: %d" % n_classes)
+
+# split into a training and testing set
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42)
+
+# #############################################################################
+# Compute a PCA (eigenfaces) on the face dataset (treated as unlabeled
+# dataset): unsupervised feature extraction / dimensionality reduction
+n_components = 150
+
+print("Extracting the top %d eigenfaces from %d faces"
+      % (n_components, X_train.shape[0]))
+t0 = time()
+pca = PCA(n_components=n_components, svd_solver='randomized',
+          whiten=True).fit(X_train)
+print("done in %0.3fs" % (time() - t0))
+
+eigenfaces = pca.components_.reshape((n_components, h, w))
+
+print("Projecting the input data on the eigenfaces orthonormal basis")
+t0 = time()
+X_train_pca = pca.transform(X_train)
+X_test_pca = pca.transform(X_test)
+print("done in %0.3fs" % (time() - t0))
+
+# #############################################################################
+# Train a SVM classification model
+
+print("Fitting the classifier to the training set")
+t0 = time()
+param_grid = {'C': [1e3, 5e3, 1e4, 5e4, 1e5],
+              'gamma': [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1], }
+clf = GridSearchCV(
+    SVC(kernel='rbf', class_weight='balanced', verbose=True), 
+    param_grid, 
+    verbose=1,
+    n_jobs=-1
+)
+clf = clf.fit(X_train_pca, y_train)
+print("done in %0.3fs" % (time() - t0))
+print("Best estimator found by grid search:")
+print(clf.best_estimator_)
+
+# #############################################################################
+# Quantitative evaluation of the model quality on the test set
+
+print("Predicting people's names on the test set")
+t0 = time()
+y_pred = clf.predict(X_test_pca)
+print("done in %0.3fs" % (time() - t0))
+
+print(classification_report(y_test, y_pred, target_names=target_names))
+print(confusion_matrix(y_test, y_pred, labels=range(n_classes)))
+
+# #############################################################################
+# Qualitative evaluation of the predictions using matplotlib
+
+def plot_gallery(images, titles, h, w, n_row=3, n_col=4):
+    """Helper function to plot a gallery of portraits"""
+    plt.figure(figsize=(1.8 * n_col, 2.4 * n_row))
+    plt.subplots_adjust(bottom=0, left=.01, right=.99, top=.90, hspace=.35)
+    for i in range(n_row * n_col):
+        plt.subplot(n_row, n_col, i + 1)
+        plt.imshow(images[i].reshape((h, w)), cmap=plt.cm.gray)
+        plt.title(titles[i], size=12)
+        plt.xticks(())
+        plt.yticks(())
+
+
+# plot the result of the prediction on a portion of the test set
+
+def title(y_pred, y_test, target_names, i):
+    pred_name = target_names[y_pred[i]].rsplit(' ', 1)[-1]
+    true_name = target_names[y_test[i]].rsplit(' ', 1)[-1]
+    return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
+
+prediction_titles = [title(y_pred, y_test, target_names, i)
+                     for i in range(y_pred.shape[0])]
+
+plot_gallery(X_test, prediction_titles, h, w)
+
+# plot the gallery of the most significative eigenfaces
+
+eigenface_titles = ["eigenface %d" % i for i in range(eigenfaces.shape[0])]
+plot_gallery(eigenfaces, eigenface_titles, h, w)
+
+plt.show()
 ```
 
 
@@ -614,3 +770,75 @@ array([0.33150734, 0.08022311, 0.03531764])
 scores = sklearn.model_selection.cross_val_score(estimator, X, y=None, *, groups=None, scoring=None, cv=None, n_jobs=None, verbose=0, fit_params=None, pre_dispatch='2*n_jobs', error_score=nan)[source]
 ```
 
+
+
+### confusion_matrix
+
+用于评估分类器
+
+```python
+sklearn.metrics.confusion_matrix(y_true, y_pred, *, labels=None, sample_weight=None, normalize=None)
+```
+
+[混淆矩阵是什么？](https://www.cnblogs.com/zxyza/p/10059834.html)
+
+
+
+### classification_report
+
+用于评估分类结果
+
+```python
+sklearn.metrics.classification_report(y_true, y_pred, *, labels=None, target_names=None, sample_weight=None, digits=2, output_dict=False, zero_division='warn')
+```
+
+
+
+输出参数意义：
+
+![img](https://images2018.cnblogs.com/blog/1182656/201803/1182656-20180321171254369-755968194.png)
+
+```
+precision = TP / (TP + FP)   # 预测为正的样本中实际正样本的比例
+recall = TP / (TP + FN)      # 实际正样本中预测为正的比例
+accuracy = (TP + TN) / (P + N)
+F1-score = 2 / [(1 / precision) + (1 / recall)]
+```
+
+
+
+### GridSearch
+
+自动调参的函数
+
+```python
+sklearn.model_selection.GridSearchCV(estimator, param_grid, *, scoring=None, n_jobs=None, iid='deprecated', refit=True, cv=None, verbose=0, pre_dispatch='2*n_jobs', error_score=nan, return_train_score=False)
+```
+
+样例代码：
+
+```python
+from sklearn import svm, datasets
+from sklearn.model_selection import GridSearchCV
+iris = datasets.load_iris()
+parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+svc = svm.SVC()
+clf = GridSearchCV(svc, parameters)
+clf.fit(iris.data, iris.target)
+```
+
+常用属性：
+
+- cv_results_ : dict of numpy (masked) ndarrays
+
+具有键作为列标题和值作为列的dict，可以导入到DataFrame中。注意，“params”键用于存储所有参数候选项的参数设置列表。
+
+- best_estimator_ : estimator
+
+通过搜索选择的估计器，即在左侧数据上给出最高分数（或指定的最小损失）的估计器。 如果*refit = False*，则不可用。
+
+- best_score_ : float best_estimator的分数
+
+- best_params_ : dict 在保存数据上给出最佳结果的参数设置。
+
+- grid_scores_：给出不同参数情况下的评价结果
